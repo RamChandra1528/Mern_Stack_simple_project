@@ -75,9 +75,6 @@ const app = http.createServer((req, res) => {
                     fs.writeFile("users.json", JSON.stringify(parseData), (error) => {
                         if (error) console.log(error);
                     });
-
-
-
                 }
             }
         });
