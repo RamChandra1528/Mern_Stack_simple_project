@@ -2,14 +2,17 @@ const fs = require("fs");
 const path = require("path");
 const http = require("http");
 const url = require("url");
+const querystring = require("querystring");
 const { json } = require("stream/consumers");
-const { error } = require("console");
-const port = 8080;
+const { error, info } = require("console");
+const port = 8081;
 
 const index_path = path.join(__dirname, "./public/index.html");
 const contact_path = path.join(__dirname, "./public/contact.html");
 const about_path = path.join(__dirname, "./public/about.html");
+const users_path = path.join(__dirname, "./public/users.html",)
 const style_path = path.join(__dirname, "./public/styles.css");
+const users_json_path = path.join(__dirname, "./public/users.json")
 
 const app = http.createServer((req, res) => {
     const query = url.parse(req.url, true); // Parse URL to extract pathname and query
@@ -41,48 +44,77 @@ const app = http.createServer((req, res) => {
                 res.end(data);
             }
         });
-    } else if (req.url === "/styles.css") {
+    } else if (req.url === "/users.html") {
+        fs.readFile(users_path, "utf-8", (error, data) => {
+            if (error) {
+                console.error(error);
+                res.end("404: Not Found");
+            } else {
+                res.end(data);
+            }
+        });
+    }
+    else if (req.url === "/users.json") {
+        fs.readFile(users_json_path, "utf-8", (error, data) => {
+            if (error) {
+                console.error(error);
+                res.end("404: Not Found");
+            } else {
+                res.writeHead(200, { "Content-Type": "application/json" });
+                // res.end(data);
+                console.log(res.end(data))
+            }
+        });
+    }
+    else if (req.url === "/styles.css") {
         fs.readFile(style_path, "utf-8", (error, data) => {
             if (error) {
                 console.error(error);
                 res.end("404: Not Found");
             } else {
-                // res.writeHead(200, { "Content-Type": "text/css" });
+                res.writeHead(200, { "Content-Type": "text/css" });
                 res.end(data);
             }
         });
-    } else if (query.pathname === "/form_submit") {
-        console.log("Form Submitted");
-        res.writeHead(200, { "Content-Type": "text/plain" });
+    }
+    else if (query.pathname === "/form_submit" && req.method === "POST") {
+        let body = "";
+        req.on("data", (chunk) => {
+            body += chunk.toString();
+            // console.log(chunk.toString())
+        });
+        req.on("end", () => {
+            let data = querystring.parse(body);
+            // console.log(data);
 
-        // console.log(`Name: ${query.query.name}`);
-        // console.log(`Email: ${query.query.email}`);
-        // console.log(`Occupation: ${query.query.work}`);
-
-        let parseObj = query.query;
-        fs.readFile("users.json", "utf-8", (err, data) => {
-            if (err) {
-                console.log(err);
-            } else {
-                if (data == "") {
-                    parseObj = [parseObj];
-                    fs.writeFile("users.json", JSON.stringify(parseObj), (error) => {
-                        if (error) console.log(error);
-                    });
+            fs.readFile("./public/users.json", "utf-8", (err, fileData) => {
+                if (err) {
+                    console.log(err);
                 } else {
-                    let parseData = JSON.parse(data);
-                    parseData.push(parseObj);
-                    fs.writeFile("users.json", JSON.stringify(parseData), (error) => {
-                        if (error) console.log(error);
+                    let users = [];
+
+                    if (fileData.trim()) {
+                        try {
+                            users = JSON.parse(fileData);
+                        } catch (error) {
+                            console.log("Error parsing JSON:", error);
+                        }
+                    }
+                    users.push(data);
+                    fs.writeFile("./public/users.json", JSON.stringify(users, null, 2), (error) => {
+                        if (error) {
+                            console.log(error);
+                        }
                     });
                 }
-            }
+            });
         });
-
-        res.end("Form submission received");
+        res.end("Successfully submitted form");
     }
+
     else {
-        res.end("<h1>404 Not Found</h1>");
+        res.writeHead(404, { "Content-Type": "text/html" });
+        res.end("404: Not Found");
     }
 });
 
