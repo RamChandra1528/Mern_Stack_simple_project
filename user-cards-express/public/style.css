@@ -1,0 +1,53 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+  }
+  
+  nav ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  nav ul li {
+    display: inline;
+    margin-right: 20px;
+  }
+  
+  nav ul li a {
+    text-decoration: none;
+    color: #000;
+  }
+  
+  form input {
+    margin: 10px;
+    padding: 10px;
+    font-size: 16px;
+  }
+  
+  form button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .card {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    margin: 10px;
+    padding: 15px;
+    display: inline-block;
+    width: 200px;
+    border-radius: 4px;
+  }
+  
+  .card button {
+    background-color: #ff4b5c;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
